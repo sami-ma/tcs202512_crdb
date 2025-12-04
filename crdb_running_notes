@@ -153,7 +153,21 @@ LimitNOFILE=65536
 [Install]
 WantedBy=default.target
 
+[admin@crdb ~]$ 
+[admin@crdb ~]$ 
 
+From cockroach user session initialize cluster:
+
+[cockroach@crdb ~]$ cockroach init  --certs-dir=/var/lib/cockroach/certs --host=10.0.40.1:26257
+Cluster successfully initialized
+[cockroach@crdb ~]$
+
+From admin user:
+
+[admin@crdb ~]$ sudo systemctl stop cockroachdb.service
+[admin@crdb ~]$ sudo systemctl daemon-reload
+[admin@crdb ~]$ sudo systemctl start cockroachdb.service
+[admin@crdb ~]$
 
 
 
