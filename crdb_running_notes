@@ -1,7 +1,159 @@
 Cockroch DB Training
 --------------------
 
-Day - 1
--------
+Install single node crdb:
+
+
+Cockroach DB running notes
+----------------------------------------
+
+Install cockroachdb singe node:
+
+[admin@crdb ~]$ ls
+cockroach-v24.3.23.linux-amd64.tgz  cockroach-v25.3.5.linux-amd64.tgz
+[admin@crdb ~]$ ll
+total 263544
+-rw-r--r--. 1 admin admin 131390294 Nov 19 23:10 cockroach-v24.3.23.linux-amd64.tgz
+-rw-r--r--. 1 admin admin 138474459 Nov 20 01:15 cockroach-v25.3.5.linux-amd64.tgz
+[admin@crdb ~]$ uname -a
+Linux crdb 5.14.0-570.58.1.el9_6.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Oct 31 13:55:05 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+[admin@crdb ~]$
+
+
+
+[admin@crdb ~]$ tar -xzf cockroach-v24.3.23.linux-amd64.tgz
+[admin@crdb ~]$ ls
+cockroach-v24.3.23.linux-amd64      cockroach-v25.3.5.linux-amd64.tgz
+cockroach-v24.3.23.linux-amd64.tgz
+[admin@crdb ~]$ tree cockroach-v24.3.23.linux-amd64
+cockroach-v24.3.23.linux-amd64
+├── cockroach
+├── lib
+│   ├── libgeos_c.so
+│   └── libgeos.so
+├── LICENSE
+└── THIRD-PARTY-NOTICES.txt
+
+1 directory, 5 files
+[admin@crdb ~]$
+
+[admin@crdb ~]$ cd cockroach-v24.3.23.linux-amd64/
+[admin@crdb cockroach-v24.3.23.linux-amd64]$ pwd
+/home/admin/cockroach-v24.3.23.linux-amd64
+[admin@crdb cockroach-v24.3.23.linux-amd64]$ ls
+cockroach  lib  LICENSE  THIRD-PARTY-NOTICES.txt
+[admin@crdb cockroach-v24.3.23.linux-amd64]$ sudo cp -r * /usr/local/bin/
+[sudo] password for admin:
+[admin@crdb cockroach-v24.3.23.linux-amd64]$
+
+[admin@crdb cockroach-v24.3.23.linux-amd64]$ which cockroach
+/usr/local/bin/cockroach
+[admin@crdb cockroach-v24.3.23.linux-amd64]$
+
+
+[admin@crdb ~]$ cockroach version
+Build Tag:        v24.3.23
+Build Time:       2025/11/12 21:15:11
+Distribution:     CCL
+Platform:         linux amd64 (x86_64-pc-linux-gnu)
+Go Version:       go1.22.12 X:nocoverageredesign
+C Compiler:       gcc 6.5.0
+Build Commit ID:  312bef74c778c17fb77228c22838fb3efd331562
+Build Type:       release
+Enabled Assertions: false
+[admin@crdb ~]$ sudo useradd -m -d /var/lib/cockroach -r -s /bin/bash cockroach
+[sudo] password for admin:
+[admin@crdb ~]$ cat /etc/passwd |grep -i cockroach
+cockroach:x:987:987::/var/lib/cockroach:/bin/bash
+[admin@crdb ~]$ sudo passwd cockroach
+Changing password for user cockroach.
+New password:
+BAD PASSWORD: The password contains the user name in some form
+Retype new password:
+passwd: all authentication tokens updated successfully.
+[admin@crdb ~]$
+
+From cockroach user session:
+
+cockroach@crdb ~]$ mkdir data
+cockroach@crdb ~]$ mkdir certs
+cockroach@crdb ~]$ mkdir keyfile
+
+cockroach@crdb ~]$ cockroach cert create-ca --certs-dir=/var/lib/cockroach/certs --ca-key=/var/lib/cockroach/keyfile
+ERROR: failed to generate CA cert and key: CA key /var/lib/cockroach/keyfile exists, but key reuse is disabled
+Failed running "cert create-ca"
+[cockroach@crdb ~]$ cockroach cert create-ca --certs-dir=/var/lib/cockroach/certs --ca-key=/var/lib/cockroach/keyfile/ca.key
+[cockroach@crdb ~]$ tree /var/lib/cockroach/
+/var/lib/cockroach/
+├── certs
+│   └── ca.crt
+├── data
+└── keyfile
+    └── ca.key
+
+3 directories, 2 files
+[cockroach@crdb ~]$ chmod -R 700 keyfile
+[cockroach@crdb ~]$ hostname
+crdb
+[cockroach@crdb ~]$ hostname -i
+10.0.40.1
+[cockroach@crdb ~]$ cockroach cert create-node localhost 127.0.0.1 crdb 10.0.40.1  --certs-dir=/var/lib/cockroach/certs --ca-key=/var/lib/cockroach/keyfile/ca.key
+[cockroach@crdb ~]$
+
+[cockroach@crdb ~]$ cockroach cert create-client root  --certs-dir=/var/lib/cockroach/certs --ca-key=/var/lib/cockroach/keyfile/ca.key
+[cockroach@crdb ~]$ tree /var/lib/cockroach/
+/var/lib/cockroach/
+├── certs
+│   ├── ca.crt
+│   ├── client.root.crt
+│   ├── client.root.key
+│   ├── node.crt
+│   └── node.key
+├── data
+└── keyfile
+    └── ca.key
+
+3 directories, 6 files
+[cockroach@crdb ~]$
+
+
+Create Cockroachdb Linux Service:
+---------------------------------------------
+
+[root@crdb log]# cat /etc/systemd/system/cockroachdb.service
+[Unit]
+Description=CockroachDB
+Documentation=https://www.cockroachlabs.com/docs/
+Requires=network.target
+After=network.target
+
+[Service]
+Type=notify
+User=cockroach
+Group=cockroach
+WorkingDirectory=/var/lib/cockroach
+ExecStart=/usr/local/bin/cockroach start \
+    --certs-dir=/var/lib/cockroach/certs  \
+    --store=/var/lib/cockroach/data \
+    --join=172.24.47.126 \
+    --advertise-addr=172.24.47.126:26257 \
+    --http-addr=0.0.0.0:8080 \
+    --listen-addr=0.0.0.0:26257 \
+    --cache=25% \
+    --max-sql-memory=25%
+ExecStop=/usr/local/bin/cockroach node drain 1 --drain-wait 5m --shutdown --certs-dir=/var/lib/cockroach/certs
+TimeoutStopSec=60
+Restart=no
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=cockroach
+LimitNOFILE=65536
+
+[Install]
+WantedBy=default.target
+
+
+
 
 
