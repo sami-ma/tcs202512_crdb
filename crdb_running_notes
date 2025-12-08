@@ -447,6 +447,14 @@ node.key                                                          100% 1679     
 2 directories, 3 files
 [cockroach@crdb1 ~]$
 
+[cockroach@crdb1 ~]$ scp admin@10.0.40.1:/home/admin/certs/client*  /var/lib/cockroach/certs/
+admin@10.0.40.1's password:
+client.root.crt                                                   100% 1143   878.5KB/s   00:00
+client.root.key                                                   100% 1679     1.0MB/s   00:00
+[cockroach@crdb1 ~]$
+
+
+
 
 
 
