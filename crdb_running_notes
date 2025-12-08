@@ -348,6 +348,71 @@ Generate certifite for all nodes:
 
 
 
+On crdb1 (first node):
+
+[admin@crdb1 ~]$ tar -xzf cockroach-v24.3.23.linux-amd64.tgz
+[admin@crdb1 ~]$ ls
+cockroach-v24.3.23.linux-amd64      cockroach-v25.3.5.linux-amd64.tgz
+cockroach-v24.3.23.linux-amd64.tgz
+[admin@crdb1 ~]$ cd cockroach-v24.3.23.linux-amd64/
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$ ls
+cockroach  lib  LICENSE  THIRD-PARTY-NOTICES.txt
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$ sudo cp -r * /usr/local/bin/
+[sudo] password for admin:
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$ which cockroach
+/usr/local/bin/cockroach
+
+Create service user:
+
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$ sudo useradd -m -d /var/lib/cockroach -r -s /bin/bash cockroach
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$ cat /etc/passwd|grep cockroach
+cockroach:x:987:987::/var/lib/cockroach:/bin/bash
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$ sudo passwd cockroach
+Changing password for user cockroach.
+New password:
+BAD PASSWORD: The password contains the user name in some form
+Retype new password:
+passwd: all authentication tokens updated successfully.
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$
+
+
+Get certifictes :
+
+[admin@crdb1 cockroach-v24.3.23.linux-amd64]$ sudo su - cockroach
+[cockroach@crdb1 ~]$ whoami
+cockroach
+[cockroach@crdb1 ~]$ pwd
+/var/lib/cockroach
+[cockroach@crdb1 ~]$ mkdir data
+[cockroach@crdb1 ~]$ mkdir certs
+[cockroach@crdb1 ~]$ tree
+.
+├── certs
+└── data
+
+2 directories, 0 files
+[cockroach@crdb1 ~]$ scp admin@10.0.40.1:/home/admin/certs/crdb1/*  /var/lib/cockroach/certs/
+The authenticity of host '10.0.40.1 (10.0.40.1)' can't be established.
+ED25519 key fingerprint is SHA256:uTfj+tyS9NneMQw9kxhE68CO2sbWrdOFF6DaKQqO2Ts.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.0.40.1' (ED25519) to the list of known hosts.
+admin@10.0.40.1's password:
+ca.crt                                                            100% 1151   977.9KB/s   00:00
+node.crt                                                          100% 1212     1.1MB/s   00:00
+node.key                                                          100% 1679     1.7MB/s   00:00
+[cockroach@crdb1 ~]$ tree
+.
+├── certs
+│   ├── ca.crt
+│   ├── node.crt
+│   └── node.key
+└── data
+
+2 directories, 3 files
+[cockroach@crdb1 ~]$
+
+
 
 
 
