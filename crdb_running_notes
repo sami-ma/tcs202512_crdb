@@ -331,6 +331,22 @@ Generate certifite for all nodes:
 [admin@crdb ~]$ cockroach cert create-node localhost 127.0.0.1 crdb3 10.0.40.4  --certs-dir=/home/admin/certs/crdb3  --ca-key=/home/admin/keydir/ca.key
 [admin@crdb ~]$
 
+├── certs
+│   ├── ca.crt
+│   ├── crdb1
+│   │   ├── ca.crt
+│   │   ├── node.crt
+│   │   └── node.key
+│   ├── crdb2
+│   │   ├── ca.crt
+│   │   ├── node.crt
+│   │   └── node.key
+│   └── crdb3
+│       ├── ca.crt
+│       ├── node.crt
+│       └── node.key
+
+
 
 
 
