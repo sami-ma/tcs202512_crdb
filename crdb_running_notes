@@ -346,6 +346,41 @@ Generate certifite for all nodes:
 │       ├── node.crt
 │       └── node.key
 
+[admin@crdb ~]$ cockroach cert create-client root  --certs-dir=/home/admin/certs --ca-key=/home/admin/keydir/ca.key
+[admin@crdb ~]$ tree
+.
+├── certs
+│   ├── ca.crt
+│   ├── client.root.crt
+│   ├── client.root.key
+│   ├── crdb1
+│   │   ├── ca.crt
+│   │   ├── node.crt
+│   │   └── node.key
+│   ├── crdb2
+│   │   ├── ca.crt
+│   │   ├── node.crt
+│   │   └── node.key
+│   └── crdb3
+│       ├── ca.crt
+│       ├── node.crt
+│       └── node.key
+├── cockroach-v24.3.23.linux-amd64
+│   ├── cockroach
+│   ├── inflight_trace_dump
+│   ├── lib
+│   │   ├── libgeos_c.so
+│   │   └── libgeos.so
+│   ├── LICENSE
+│   └── THIRD-PARTY-NOTICES.txt
+├── cockroach-v24.3.23.linux-amd64.tgz
+├── cockroach-v25.3.5.linux-amd64.tgz
+├── inflight_trace_dump
+└── keydir
+    └── ca.key
+
+9 directories, 20 files
+[admin@crdb ~]$
 
 
 On crdb1 (first node):
