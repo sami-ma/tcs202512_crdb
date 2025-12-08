@@ -454,7 +454,49 @@ client.root.key                                                   100% 1679     
 [cockroach@crdb1 ~]$
 
 
+From cockroach create Serivice file and start service
+[admin@crdb1 ~]$  sudo vi /etc/systemd/system/cockroachdb.service
+[sudo] password for admin:
+[admin@crdb1 ~]$
+[Unit]
+Description=CockroachDB
+Documentation=https://www.cockroachlabs.com/docs/
+Requires=network.target
+After=network.target
 
+[Service]
+Type=notify
+User=cockroach
+Group=cockroach
+WorkingDirectory=/var/lib/cockroach
+ExecStart=/usr/local/bin/cockroach start \
+    --certs-dir=/var/lib/cockroach/certs  \
+    --store=/var/lib/cockroach/data \
+    --join=10.0.40.2 \
+    --advertise-addr=10.0.40.2:26257 \
+    --http-addr=0.0.0.0:8080 \
+    --listen-addr=0.0.0.0:26257 \
+    --cache=25% \
+    --max-sql-memory=25%
+ExecStop=/usr/local/bin/cockroach node drain 1 --drain-wait 5m --shutdown --certs-dir=/var/lib/cockroach/certs
+TimeoutStopSec=60
+Restart=no
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=cockroach
+LimitNOFILE=65536
+
+[Install]
+WantedBy=default.target
+
+
+[admin@crdb1 ~]$ sudo systemctl daemon-reload
+[admin@crdb1 ~]$ sudo systemctl start cockroachdb.service
+
+swithch to cockroach user and init the first node:
+
+[cockroach@crdb1 ~]$ cockroach init --certs-dir=/var/lib/cockroach/certs --host=10.0.40.2:26257 
 
 
 
