@@ -267,6 +267,70 @@ Created symlink /etc/systemd/system/multi-user.target.wants/chronyd.service → 
 
 Generate Certificates for All nodes:
 
+on a node which is not part of cluster but cockroachdb binary is installed:
+
+[admin@crdb ~]$ mkdir keydir
+[admin@crdb ~]$ mkdir certs
+[admin@crdb ~]$ mkdir -p certs/crdb{1..3}
+[admin@crdb ~]$ tree
+
+
+├── certs
+│   ├── crdb1
+│   ├── crdb2
+│   └── crdb3
+├── cockroach-v24.3.23.linux-amd64
+│   ├── cockroach
+│   ├── inflight_trace_dump
+│   ├── lib
+│   │   ├── libgeos_c.so
+│   │   └── libgeos.so
+│   ├── LICENSE
+│   └── THIRD-PARTY-NOTICES.txt
+├── cockroach-v24.3.23.linux-amd64.tgz
+├── cockroach-v25.3.5.linux-amd64.tgz
+├── inflight_trace_dump
+└── keydir
+
+Generate CA Cert and Key:
+
+[admin@crdb ~]$ cockroach cert create-ca --certs-dir=/home/admin/certs --ca-key=/home/admin/keydir/ca.key
+[admin@crdb ~]$ tree
+.
+├── certs
+│   ├── ca.crt
+│   ├── crdb1
+│   ├── crdb2
+│   └── crdb3
+├── cockroach-v24.3.23.linux-amd64
+│   ├── cockroach
+│   ├── inflight_trace_dump
+│   ├── lib
+│   │   ├── libgeos_c.so
+│   │   └── libgeos.so
+│   ├── LICENSE
+│   └── THIRD-PARTY-NOTICES.txt
+├── cockroach-v24.3.23.linux-amd64.tgz
+├── cockroach-v25.3.5.linux-amd64.tgz
+├── inflight_trace_dump
+└── keydir
+    └── ca.key
+
+9 directories, 9 files
+[admin@crdb ~]$
+
+Generate certifite for all nodes:
+
+[admin@crdb ~]$ cp certs/ca.crt certs/crdb1
+[admin@crdb ~]$ cp certs/ca.crt certs/crdb2
+[admin@crdb ~]$ cp certs/ca.crt certs/crdb3
+[admin@crdb ~]$ cockroach cert create-node localhost 127.0.0.1 crdb1 10.0.40.2  --certs-dir=/home/admin/certs/crdb1  --ca-key=/home/admin/keydir/ca.key
+[admin@crdb ~]$
+
+[admin@crdb ~]$ cockroach cert create-node localhost 127.0.0.1 crdb2 10.0.40.3  --certs-dir=/home/admin/certs/crdb2  --ca-key=/home/admin/keydir/ca.key
+[admin@crdb ~]$ cockroach cert create-node localhost 127.0.0.1 crdb3 10.0.40.4  --certs-dir=/home/admin/certs/crdb3  --ca-key=/home/admin/keydir/ca.key
+[admin@crdb ~]$
+
 
 
 
