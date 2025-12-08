@@ -176,11 +176,92 @@ Deploy a 3 node cluster:
 ------------------------
 
 Check hostname ping for each node:
+[admin@crdb ~]$ sudo hostnamectl set-hostname crdb1
+[sudo] password for admin:
+[admin@crdb ~]$ exit
+logout
+Connection to 10.0.40.2 closed.
+                                                                                                   ✓
+
+  2025-12-08   14:26.51   /home/mobaxterm  ssh admin@10.0.40.2
+X11 forwarding request failed on channel 0
+Activate the web console with: systemctl enable --now cockpit.socket
+
+Last login: Mon Dec  8 14:22:48 2025 from 10.0.9.122
+[admin@crdb1 ~]$
+
+
+
+
 
 Add entries in /etc/hosts file for all nodes
 
+admin@crdb1 ~]$ sudo vi /etc/hosts
+[sudo] password for admin:
+[admin@crdb1 ~]$ cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.0.40.2   crdb1
+10.0.40.3   crdb2
+10.0.40.4   crdb3
+
+[admin@crdb1 ~]$
+
+Node2 (crdb2)
+[admin@crdb ~]$ sudo hostnamectl set-hostname crdb2
+[sudo] password for admin:
+[admin@crdb ~]$ sudo vi /etc/hosts
+[admin@crdb ~]$ cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.0.40.2   crdb1
+10.0.40.3   crdb2
+10.0.40.4   crdb3
+[admin@crdb ~]$
+
+Node3 (crdb3)
+
+admin@crdb ~]$ sudo hostnamectl set-hostname crdb3
+[sudo] password for admin:
+[admin@crdb ~]$ sudo vi /etc/hosts
+[admin@crdb ~]$ cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.0.40.2   crdb1
+10.0.40.3   crdb2
+10.0.40.4   crdb3
+[admin@crdb ~]$
+
+
+
 
 Check Chronyd for time synchronization:
+
+Repeat steps on all server:
+
+[admin@crdb1 ~]$ sudo vi /etc/chrony.conf
+[admin@crdb1 ~]$ sudo vi /etc/chrony.conf
+[admin@crdb1 ~]$ cat /etc/chrony.conf |grep pool
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (https://www.pool.ntp.org/join.html).
+pool time.windows.com  iburst
+[admin@crdb1 ~]$ sudo systemctl start chronyd
+chronyd-restricted.service  chronyd.service
+[admin@crdb1 ~]$ sudo systemctl start chronyd.service
+[admin@crdb1 ~]$ chronyc sources
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^* 40.81.94.65                   3   6    17    15  +4668us[+5460us] +/-   51ms
+[admin@crdb1 ~]$ chronyc makestep
+501 Not authorised
+[admin@crdb1 ~]$ sudo chronyc makestep
+200 OK
+[admin@crdb1 ~]$
+
+
+admin@crdb1 ~]$ sudo systemctl enable chronyd
+Created symlink /etc/systemd/system/multi-user.target.wants/chronyd.service → /usr/lib/systemd/system/chronyd.service.
+[admin@crdb1 ~]$
 
 
 
