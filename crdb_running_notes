@@ -169,5 +169,25 @@ From admin user:
 [admin@crdb ~]$ sudo systemctl start cockroachdb.service
 [admin@crdb ~]$
 
+Day -4
+------
+
+Deploy a 3 node cluster:
+------------------------
+
+Check hostname ping for each node:
+
+Add entries in /etc/hosts file for all nodes
+
+
+Check Chronyd for time synchronization:
+
+
+
+Generate Certificates for All nodes:
+
+
+
+
 
 
