@@ -539,4 +539,46 @@ root@localhost:26257/defaultdb> show users;
 
 Time: 4ms total (execution 4ms / network 0ms)
 
+certificate for certificate for user sami:
+
+root@localhost:26257/defaultdb> show users;
+  username | options | member_of
+-----------+---------+------------
+  admin    |         | {}
+  root     |         | {admin}
+  sami     |         | {}
+(3 rows)
+
+Time: 4ms total (execution 4ms / network 0ms)
+
+[cockroach@crdb1 certs]$ pwd
+/var/lib/cockroach/certs
+[cockroach@crdb1 certs]$ ls
+ca.crt  client.root.crt  client.root.key  node.crt  node.key
+[cockroach@crdb1 certs]$ scp admin@10.0.40.1:/home/admin/certs/client.sami.* .
+admin@10.0.40.1's password:
+client.sami.crt                      100% 1147   974.2KB/s   00:00
+client.sami.key                      100% 1675     1.3MB/s   00:00
+[cockroach@crdb1 certs]$ ls
+ca.crt           client.root.key  client.sami.key  node.key
+client.root.crt  client.sami.crt  node.crt
+[cockroach@crdb1 certs]$
+
+
+Login using certificate:
+
+[cockroach@crdb1 certs]$ cockroach sql  -u sami --certs-dir=/var/lib/cockroach/certs
+#
+# Welcome to the CockroachDB SQL shell.
+# All statements must be terminated by a semicolon.
+# To exit, type: \q.
+#
+# Server version: CockroachDB CCL v24.3.23 (x86_64-pc-linux-gnu, built 2025/11/12 21:15:11, go1.22.12 X:nocoverageredesign) (same version as client)
+# Cluster ID: a9cb10cb-29fe-42ca-b747-7d51e87a99c2
+#
+# Enter \? for a brief introduction.
+#
+sami@localhost:26257/defaultdb>
+
+
 
