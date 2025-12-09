@@ -499,6 +499,35 @@ swithch to cockroach user and init the first node:
 [cockroach@crdb1 ~]$ cockroach init --certs-dir=/var/lib/cockroach/certs --host=10.0.40.2:26257 
 
 
+User Administration:
+
+root@localhost:26257/defaultdb>
+root@localhost:26257/defaultdb>
+root@localhost:26257/defaultdb> show users;
+  username | options | member_of
+-----------+---------+------------
+  admin    |         | {}
+  root     |         | {admin}
+(2 rows)
+
+Time: 8ms total (execution 7ms / network 0ms)
+
+root@localhost:26257/defaultdb> \du
+List of roles:
+  Role name |                   Attributes                    | Member of
+------------+-------------------------------------------------+------------
+  root      | Superuser, Create role, Create DB               | {admin}
+  admin     | Superuser, Create role, Create DB               | {}
+  node      | Superuser, Create role, Create DB, Cannot login | {}
+(3 rows)
+root@localhost:26257/defaultdb> create role sami with login password
+                             -> 'secret';
+CREATE ROLE
+
+Time: 195ms total (execution 195ms / network 0ms)
+
+root@localhost:26257/defaultdb>
+
 
 
 
