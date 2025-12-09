@@ -529,5 +529,14 @@ Time: 195ms total (execution 195ms / network 0ms)
 root@localhost:26257/defaultdb>
 
 
+root@localhost:26257/defaultdb> show users;
+  username | options | member_of
+-----------+---------+------------
+  admin    |         | {}
+  root     |         | {admin}
+  sami     |         | {}
+(3 rows)
+
+Time: 4ms total (execution 4ms / network 0ms)
 
 
