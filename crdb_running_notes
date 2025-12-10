@@ -643,6 +643,16 @@ Time: 9ms total (execution 8ms / network 0ms)
 root@localhost:26257/defaultdb> show schedules;
 
 
+S3 backup commands:
+
+-- Full cluster backup
+BACKUP INTO 's3://my-crdb-backups?AWS_ACCESS_KEY_ID=xxxx&AWS_SECRET_ACCESS_KEY=yyyy';
+
+-- Backup a specific database
+BACKUP DATABASE mydb INTO 's3://my-crdb-backups?AWS_ACCESS_KEY_ID=xxxx&AWS_SECRET_ACCESS_KEY=yyyy';
+
+-- Backup a specific table
+BACKUP TABLE mydb.mytable INTO 's3://my-crdb-backups?AWS_ACCESS_KEY_ID=xxxx&AWS_SECRET_ACCESS_KEY=yyyy';
 
 
 
