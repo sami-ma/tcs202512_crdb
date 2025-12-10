@@ -1,0 +1,140 @@
+backup
+
+BACKUP <targets...> INTO <destination...>
+       **\[ AS OF SYSTEM TIME <expr> ]**
+
+                        **\[ WITH <option> \[= <value>] \[, ...] ]**
+
+
+
+
+
+
+
+Incremental Backup to the most recent backup added to a collection
+
+BACKUP <targets...> INTO LATEST IN <destination...>
+       **\[ AS OF SYSTEM TIME <expr> ]**
+
+                        **\[ WITH <option> \[= <value>] \[, ...] ]**
+
+
+
+
+Targets:
+Empty targets list: backup full cluster.
+TABLE <pattern> [, ...]
+DATABASE <databasename> [, ...]
+
+Destination:
+"[scheme]://[host]/[path to backup]?[parameters]"
+
+Options:
+revision_history: enable revision history
+encryption_passphrase="secret": encrypt backups
+kms="[kms_provider]://[kms_host]/[master_key_identifier]?[parameters]" : encrypt backups using KMS
+
+
+BACKUP DATABASE bank, employees INTO 'external://backup_s3' AS OF SYSTEM TIME '-10s';
+
+
+
+BACKUP INTO 
+  'nodelocal://1/backups/cluster-full',
+  'nodelocal://2/backups/cluster-full',
+  'nodelocal://3/backups/cluster-full'
+AS OF SYSTEM TIME '-10s'
+WITH DETACHED;  -- Optional: Non-blocking; returns job ID immediately
+
+
+Incremental:
+
+BACKUP INTO LATEST IN 
+  'nodelocal://1/backups/cluster-full',
+  'nodelocal://2/backups/cluster-full',
+  'nodelocal://3/backups/cluster-full'
+AS OF SYSTEM TIME '-10s'
+WITH DETACHED;
+
+Monitor Backup Progress:
+
+-- View job status (look for BACKUP job)
+SHOW JOBS;
+
+-- Detailed status for a specific job ID (e.g., from above)
+SHOW JOB <job_id> WITH EXECUTION DETAILS;
+
+-- List backups in the collection (from any node)
+SHOW BACKUPS IN 'nodelocal://1/backups/';
+
+Example:
+BACKUP INTO 'nodelocal://self/backups/cluster-full' AS OF SYSTEM TIME '-10s';
+        job_id        |  status   | fraction_completed | rows | index_entries | bytes
+----------------------+-----------+--------------------+------+---------------+--------
+  1127070369838202881 | succeeded |                  1 |   54 |            15 |  3102
+(1 row)
+
+
+ SHOW BACKUPS IN 'nodelocal://self/backups/cluster-full';
+
+SHOW BACKUPS IN 'nodelocal://self/backups/';
+
+REstore Example:
+
+restore table mydb.t2 from latest in 'nodelocal://self/backups/cluster-full';
+
+        job_id        |  status   | fraction_completed | rows | index_entries | bytes
+----------------------+-----------+--------------------+------+---------------+--------
+  1127074717340827649 | succeeded |                  1 |    0 |             0 |     0
+(1 row)
+
+Time: 843ms total (execution 836ms / network 6ms)
+
+
+
+
+Backup Jobs:
+
+CREATE SCHEDULE full_backup_schedule
+AS BACKUP INTO 's3://my-bucket/backups?AWS_REGION=us-east-1'
+WITH revision_history = false, retention_policy = 'KEEP 7 FULL BACKUPS';
+
+
+
+RESTORE
+
+Syntax:
+RESTORE <targets...> FROM <location...>
+        **\[ AS OF SYSTEM TIME <expr> ]**
+
+        **\[ WITH <option> \[= <value>] \[, ...] ]**
+
+or
+RESTORE SYSTEM USERS FROM <location...>
+        **\[ AS OF SYSTEM TIME <expr> ]**
+
+        **\[ WITH <option> \[= <value>] \[, ...] ]**
+
+Restore Full Cluster and Overwrites existing:
+
+RESTORE FROM 
+  'nodelocal://1/backups/cluster-full',
+  'nodelocal://2/backups/cluster-full',
+  'nodelocal://3/backups/cluster-full';
+
+Restore from latest:
+
+-- On a new/empty cluster
+RESTORE FROM LATEST IN 
+  'nodelocal://1/backups/cluster-full',
+  'nodelocal://2/backups/cluster-full',
+  'nodelocal://3/backups/cluster-full';
+
+
+
+Targets:
+TABLE <pattern> [, ...]
+DATABASE <databasename> [, ...]
+
+Locations:
+"[scheme]://[host]/[path to backup]?[parameters]"
