@@ -589,7 +589,10 @@ Adding a backup directory on all nodes: (repeat steps in all nodes)
 [admin@crdb2 ~]$ sudo chown cockroach:cockroach /var/lib/cockroachbkp/
 [admin@crdb2 ~]$
 
-Edit the service file:
+Edit the service file add make changes to ExecStart:
+
+[admin@crdb1 ~]$ sudo nano /etc/systemd/system/cockroachdb.service
+
 
 ExecStart=/usr/local/bin/cockroach start \
     --certs-dir=/var/lib/cockroach/certs  \
