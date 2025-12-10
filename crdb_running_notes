@@ -605,6 +605,13 @@ ExecStart=/usr/local/bin/cockroach start \
     --max-sql-memory=25% \
     --external-io-dir=/var/lib/cockroachbkp
 
-Restart all nodes
+[admin@crdb2 ~]$ sudo systemctl daemon-reload
+[admin@crdb2 ~]$ sudo systemctl restart cockroachdb.service
+[admin@crdb2 ~]$
+
+
+-------------------------- backup directory configuration completed -----------------------
+
+
 
 
