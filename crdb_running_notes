@@ -624,3 +624,22 @@ Targets:
    TABLE <table_pattern> [, ...]
    DATABASE <database_name> [, ...]
 
+BAckup Schedules:
+
+CREATE SCHEDULE  cluster_bkp
+FOR BACKUP  INTO 'nodelocal://1/backups/cluster-full'
+RECURRING 01 00  * * 1-6  FULL BACKUP 01 00 * * 0
+
+Example:
+
+ CREATE SCHEDULE  cluster_bkp FOR BACKUP  INTO 'nodelocal://1/backups/cluster-full'  RECURRING '@daily' FULL BACKUP '1 0 * * 0'
+
+
+root@localhost:26257/defaultdb> drop schedule 1131465234631294977;
+DROP SCHEDULES 1
+
+Time: 9ms total (execution 8ms / network 0ms)
+
+
+
+
