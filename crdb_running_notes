@@ -580,5 +580,28 @@ Login using certificate:
 #
 sami@localhost:26257/defaultdb>
 
+10-12-2025:
+
+Adding a backup directory on all nodes: (repeat steps in all nodes)
+
+[admin@crdb2 ~]$ sudo mkdir /var/lib/cockroachbkp
+[sudo] password for admin:
+[admin@crdb2 ~]$ sudo chown cockroach:cockroach /var/lib/cockroachbkp/
+[admin@crdb2 ~]$
+
+Edit the service file:
+
+ExecStart=/usr/local/bin/cockroach start \
+    --certs-dir=/var/lib/cockroach/certs  \
+    --store=/var/lib/cockroach/data \
+    --join=10.0.40.2 \
+    --advertise-addr=10.0.40.2:26257 \
+    --http-addr=0.0.0.0:8080 \
+    --listen-addr=0.0.0.0:26257 \
+    --cache=25% \
+    --max-sql-memory=25% \
+    --external-io-dir=/var/lib/cockroachbkp
+
+Restart all nodes
 
 
