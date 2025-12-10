@@ -613,5 +613,14 @@ ExecStart=/usr/local/bin/cockroach start \
 -------------------------- backup directory configuration completed -----------------------
 
 
+CREATE SCHEDULE [IF NOT EXISTS] <label>
+FOR BACKUP [<targets>] INTO <location>
+[WITH <backup_options>[=<value>] [, ...]]
+RECURRING [crontab] [FULL BACKUP <crontab|ALWAYS>]
+[WITH SCHEDULE OPTIONS <schedule_option>[= <value>] [, ...] ]
 
+Targets:
+   Empty targets list: backup full cluster.
+   TABLE <table_pattern> [, ...]
+   DATABASE <database_name> [, ...]
 
