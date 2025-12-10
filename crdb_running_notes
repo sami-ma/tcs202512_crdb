@@ -640,6 +640,9 @@ DROP SCHEDULES 1
 
 Time: 9ms total (execution 8ms / network 0ms)
 
+root@localhost:26257/defaultdb> show schedules;
+
+
 
 
 
