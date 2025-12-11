@@ -1,0 +1,26 @@
+Docker Single Node Installation:
+
+docker pull cockroachdb/cockroach:v25.4.0
+
+docker volume create mydisk
+
+docker run -d \
+  --name=roach-single \
+  --hostname=roach-single \
+  -p 26257:26257 \
+  -p 8080:8080 \
+  -v "mydisk:/cockroach/cockroach-data" \
+  cockroachdb/cockroach:v25.4.0 start-single-node \
+  --http-addr=roach-single:8080 \
+  --insecure
+
+docker exec -it roach-single ./cockroach sql --insecure
+
+Stop  & Cleanup
+
+docker stop -t 300 roach-single  
+
+docker rm roach-single
+
+docker volume rm mydisk  
+
