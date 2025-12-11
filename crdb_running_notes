@@ -654,5 +654,158 @@ BACKUP DATABASE mydb INTO 's3://my-crdb-backups?AWS_ACCESS_KEY_ID=xxxx&AWS_SECRE
 -- Backup a specific table
 BACKUP TABLE mydb.mytable INTO 's3://my-crdb-backups?AWS_ACCESS_KEY_ID=xxxx&AWS_SECRET_ACCESS_KEY=yyyy';
 
+11-12-25:
+
+Upgrading from 24.3 to 25.2:
+
+Upgrading:
+
+
+root@localhost:26257/defaultdb> SET CLUSTER SETTING
+                             -> diagnostics.reporting.enabled =
+                             -> true;
+
+
+
+root@localhost:26257/defaultdb> show cluster setting
+                             -> diagnostics.reporting.enabled;
+  diagnostics.reporting.enabled
+---------------------------------
+                t
+(1 row)
+
+Time: 1ms total (execution 1ms / network 0ms)
+
+
+Stop Service and take tar of current data directory:
+
+[admin@crdb1 ~]$ sudo systemctl stop cockroachdb.service
+Password:
+
+[admin@crdb1 ~]$ su - cockroach
+Password:
+[cockroach@crdb1 ~]$ ls
+certs  data
+[cockroach@crdb1 ~]$ tar -czf data_node1.tar.gz data
+
+
+download 25.2 version
+
+
+[admin@crdb1 ~]$ wget https://binaries.cockroachdb.com/cockroach-v25.2.9.linux-amd64.tgz
+--2025-12-11 15:06:37--  https://binaries.cockroachdb.com/cockroach-v25.2.9.linux-amd64.tgz
+Resolving binaries.cockroachdb.com (binaries.cockroachdb.com)... 34.149.102.43
+Connecting to binaries.cockroachdb.com (binaries.cockroachdb.com)|34.149.102.43|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 137558707 (131M) [application/x-gzip]
+Saving to: ‘cockroach-v25.2.9.linux-amd64.tgz’
+
+cockroach-v25.2.9 100%[============>] 131.19M  9.99MB/s    in 13s
+
+2025-12-11 15:06:51 (10.1 MB/s) - ‘cockroach-v25.2.9.linux-amd64.tgz’ saved [137558707/137558707]
+
+[admin@crdb1 ~]$ ls
+cockroach-v24.3.23.linux-amd64      cockroach-v25.3.5.linux-amd64
+cockroach-v24.3.23.linux-amd64.tgz  cockroach-v25.3.5.linux-amd64.tgz
+cockroach-v25.2.9.linux-amd64.tgz
+[admin@crdb1 ~]$ sudo rm -rf /usr/local/bin/*
+[admin@crdb1 ~]$ tar -xzf cockroach-v25.2.9.linux-amd64.tgz
+[admin@crdb1 ~]$ sudo cp -r cockroach-v25.2.9.linux-amd64/* /usr/local/bin/
+[admin@crdb1 ~]$ cockroach version
+Build Tag:        v25.2.9
+Build Time:       2025/11/12 21:15:51
+Distribution:     CCL
+Platform:         linux amd64 (x86_64-pc-linux-gnu)
+Go Version:       go1.23.12 X:nocoverageredesign
+C Compiler:       gcc 6.5.0
+Build Commit ID:  f0bfb1cb00838ff45a508e4f1eba087e9835a674
+Build Type:       release
+Enabled Assertions: false
+[admin@crdb1 ~]$ sudo systemctl start cockroachdb
+
+Once started now download latest 25.4 version to further upgrade:
+
+[admin@crdb1 ~]$ wget https://binaries.cockroachdb.com/cockroach-v25.4.1.linux-amd64.tgz
+--2025-12-11 15:10:11--  https://binaries.cockroachdb.com/cockroach-v25.4.1.linux-amd64.tgz
+Resolving binaries.cockroachdb.com (binaries.cockroachdb.com)... 34.149.102.43
+Connecting to binaries.cockroachdb.com (binaries.cockroachdb.com)|34.149.102.43|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 141603722 (135M) [application/x-gzip]
+Saving to: ‘cockroach-v25.4.1.linux-amd64.tgz’
+
+cockroach-v25.4.1 100%[============>] 135.04M  14.7MB/s    in 12s
+
+2025-12-11 15:10:23 (11.2 MB/s) - ‘cockroach-v25.4.1.linux-amd64.tgz’ saved [141603722/141603722]
+
+[admin@crdb1 ~]$ sudo systemctl stop cockroachdb.service
+[sudo] password for admin:
+
+
+On Second Node:
+
+[admin@crdb2 ~]$ sudo systemctl stop cockroachdb.service
+[admin@crdb2 ~]$ ls
+cockroach-v24.3.23.linux-amd64      cockroach-v25.3.5.linux-amd64.tgz
+cockroach-v24.3.23.linux-amd64.tgz
+[admin@crdb2 ~]$ sudo rm -rf /usr/local/bin/*
+[admin@crdb2 ~]$ sudo scp -r admin@10.0.40.2:/usr/local/bin/* /usr/local/bin/
+admin@10.0.40.2's password:
+LICENSE                                    100% 8782     3.0MB/s   00:00
+THIRD-PARTY-NOTICES.txt                    100% 7533KB  41.4MB/s   00:00
+cockroach                                  100%  291MB  46.5MB/s   00:06
+libgeos.so                                 100%   13MB  48.0MB/s   00:00
+libgeos_c.so                               100%  551KB  44.9MB/s   00:00
+[admin@crdb2 ~]$ cockroach version
+Build Tag:        v25.2.9
+Build Time:       2025/11/12 21:15:51
+Distribution:     CCL
+Platform:         linux amd64 (x86_64-pc-linux-gnu)
+Go Version:       go1.23.12 X:nocoverageredesign
+C Compiler:       gcc 6.5.0
+Build Commit ID:  f0bfb1cb00838ff45a508e4f1eba087e9835a674
+Build Type:       release
+Enabled Assertions: false
+[admin@crdb2 ~]$
+
+
+[admin@crdb2 ~]$ sudo systemctl start cockroachdb.service
+[admin@crdb2 ~]$
+
+on 3rd node:
+
+[admin@crdb3 ~]$ sudo systemctl stop cockroachdb.service
+[admin@crdb3 ~]$ sudo rm -rf /usr/local/bin/*
+[admin@crdb3 ~]$ sudo scp -r admin@10.0.40.2:/usr/local/bin/* /usr/local/bin/
+The authenticity of host '10.0.40.2 (10.0.40.2)' can't be established.
+ED25519 key fingerprint is SHA256:uTfj+tyS9NneMQw9kxhE68CO2sbWrdOFF6DaKQqO2Ts.
+This host key is known by the following other names/addresses:
+    ~/.ssh/known_hosts:1: 10.0.40.3
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.0.40.2' (ED25519) to the list of known hosts.
+admin@10.0.40.2's password:
+LICENSE                                    100% 8782     4.2MB/s   00:00
+THIRD-PARTY-NOTICES.txt                    100% 7533KB  42.1MB/s   00:00
+cockroach                                  100%  291MB  45.5MB/s   00:06
+libgeos.so                                 100%   13MB  41.9MB/s   00:00
+libgeos_c.so                               100%  551KB  38.8MB/s   00:00
+[admin@crdb3 ~]$ cockroach version
+Build Tag:        v25.2.9
+Build Time:       2025/11/12 21:15:51
+Distribution:     CCL
+Platform:         linux amd64 (x86_64-pc-linux-gnu)
+Go Version:       go1.23.12 X:nocoverageredesign
+C Compiler:       gcc 6.5.0
+Build Commit ID:  f0bfb1cb00838ff45a508e4f1eba087e9835a674
+Build Type:       release
+Enabled Assertions: false
+[admin@crdb3 ~]$ sudo systemctl start cocckroachdb
+Failed to start cocckroachdb.service: Unit cocckroachdb.service not found.
+[admin@crdb3 ~]$ sudo systemctl start cockroachdb
+[admin@crdb3 ~]$
+
+
+
+
+
 
 
