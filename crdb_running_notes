@@ -784,9 +784,7 @@ Build Commit ID:  f0bfb1cb00838ff45a508e4f1eba087e9835a674
 Build Type:       release
 Enabled Assertions: false
 [admin@crdb3 ~]$ sudo systemctl start cocckroachdb
-Failed to start cocckroachdb.service: Unit cocckroachdb.service not found.
-[admin@crdb3 ~]$ sudo systemctl start cockroachdb
-[admin@crdb3 ~]$
+
 
 
 
