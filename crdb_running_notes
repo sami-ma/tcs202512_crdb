@@ -723,22 +723,7 @@ Build Type:       release
 Enabled Assertions: false
 [admin@crdb1 ~]$ sudo systemctl start cockroachdb
 
-Once started now download latest 25.4 version to further upgrade:
 
-[admin@crdb1 ~]$ wget https://binaries.cockroachdb.com/cockroach-v25.4.1.linux-amd64.tgz
---2025-12-11 15:10:11--  https://binaries.cockroachdb.com/cockroach-v25.4.1.linux-amd64.tgz
-Resolving binaries.cockroachdb.com (binaries.cockroachdb.com)... 34.149.102.43
-Connecting to binaries.cockroachdb.com (binaries.cockroachdb.com)|34.149.102.43|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 141603722 (135M) [application/x-gzip]
-Saving to: ‘cockroach-v25.4.1.linux-amd64.tgz’
-
-cockroach-v25.4.1 100%[============>] 135.04M  14.7MB/s    in 12s
-
-2025-12-11 15:10:23 (11.2 MB/s) - ‘cockroach-v25.4.1.linux-amd64.tgz’ saved [141603722/141603722]
-
-[admin@crdb1 ~]$ sudo systemctl stop cockroachdb.service
-[sudo] password for admin:
 
 
 On Second Node:
