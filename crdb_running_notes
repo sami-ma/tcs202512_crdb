@@ -786,6 +786,67 @@ Enabled Assertions: false
 [admin@crdb3 ~]$ sudo systemctl start cocckroachdb
 
 
+12-12-25:
+
+Locality settings:
+
+[admin@crdb3 ~]$ sudo nano /etc/systemd/system/cockroachdb.service
+[sudo] password for admin:
+[admin@crdb3 ~]$ cat /etc/systemd/system/cockroachdb.service
+[Unit]
+Description=CockroachDB
+Documentation=https://www.cockroachlabs.com/docs/
+Requires=network.target
+After=network.target
+
+[Service]
+Type=notify
+User=cockroach
+Group=cockroach
+WorkingDirectory=/var/lib/cockroach
+ExecStart=/usr/local/bin/cockroach start \
+    --certs-dir=/var/lib/cockroach/certs  \
+    --store=/var/lib/cockroach/data \
+    --join=10.0.40.2,10.0.40.3 \
+    --advertise-addr=10.0.40.4:26257 \
+    --http-addr=0.0.0.0:8080 \
+    --listen-addr=0.0.0.0:26257 \
+    --cache=25% \
+    --max-sql-memory=25% \
+    --external-io-dir=/var/lib/cockroachbkp \
+    --locality=region=india-west,zone=iw1
+ExecStop=/usr/local/bin/cockroach node drain 3 --drain-wait 5m --shutdown --certs-dir=/var/lib/cockroach/certs
+TimeoutStopSec=60
+Restart=no
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=cockroach
+LimitNOFILE=65536
+
+[Install]
+WantedBy=default.target
+[admin@crdb3 ~]$
+
+
+[admin@crdb3 ~]$ systemctl daemon-reload
+==== AUTHENTICATING FOR org.freedesktop.systemd1.reload-daemon ====
+Authentication is required to reload the systemd state.
+Authenticating as: admin
+Password:
+==== AUTHENTICATION COMPLETE ====
+[admin@crdb3 ~]$ sudo systemctl stop cockroachdb.service
+[admin@crdb3 ~]$ sudo systemctl start cockroachdb.service
+[admin@crdb3 ~]$
+
+[cockroach@crdb1 ~]$ cockroach node status  --certs-dir=/var/lib/cockroach/certs
+  id |     address     |   sql_address   |  build  |              started_at              |              updated_at              |          locality          | attrs | is_available | is_live
+-----+-----------------+-----------------+---------+--------------------------------------+--------------------------------------+----------------------------+-------+--------------+----------
+   1 | 10.0.40.2:26257 | 10.0.40.2:26257 | v25.4.1 | 2025-12-12 08:52:47.504969 +0000 UTC | 2025-12-12 09:18:29.584595 +0000 UTC |                            | []    | true         | true
+   2 | 10.0.40.3:26257 | 10.0.40.3:26257 | v25.4.1 | 2025-12-12 08:53:26.181993 +0000 UTC | 2025-12-12 09:18:29.262562 +0000 UTC |                            | []    | true         | true
+   3 | 10.0.40.4:26257 | 10.0.40.4:26257 | v25.4.1 | 2025-12-12 09:18:03.907652 +0000 UTC | 2025-12-12 09:18:30.951166 +0000 UTC | region=india-west,zone=iw1 | []    | true         | true
+(3 rows)
+[cockroach@crdb1 ~]$
 
 
 
