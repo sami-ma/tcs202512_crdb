@@ -849,6 +849,16 @@ Password:
 [cockroach@crdb1 ~]$
 
 
+[cockroach@crdb3 ~]$ cat test.sql
+use employees;
+set search_path = myschema, public;
+update emp set sal = sal + 100  where ename = 'FORD';
+select * from emp where ename = 'FORD';
+
+[cockroach@crdb3 ~]$
+
+[cockroach@crdb3 ~]$ cockroach sql -u root  --certs-dir=/var/lib/cockroach/certs < test.sql
+
 
 
 
